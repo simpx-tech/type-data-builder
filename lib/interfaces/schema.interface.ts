@@ -17,5 +17,5 @@ export interface IFieldConfig {
   value?: any | (() => any);
   array?: boolean;
   // TODO show all possibilities in Typescript
-  ref?: string;
+  ref?: Symbol;
 }
