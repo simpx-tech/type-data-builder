@@ -1,4 +1,6 @@
-import { ISchema } from "./interfaces/schema.interface";
+import { DataConnector } from "./data-connector";
+import { DataGenerator } from "./data-generator";
+import { ISchema, ISchemaTweaks } from "./interfaces/schema.interface";
 
 export class DataBuilder {
   private data: Record<string, any> = {};
@@ -7,23 +9,44 @@ export class DataBuilder {
     Map<string, Record<number, any>>
   >();
 
-  constructor(readonly schema: ISchema, private variation: number) {}
+  private generator = new DataGenerator(this);
+  private connector = new DataConnector(this);
 
-  set(data: Record<string, any>) {}
+  constructor(readonly schema: ISchema, private variation: number) {
+    this.initializeData();
+  }
 
-  connect(entity: DataBuilder) {}
+  private initializeData() {
+    return this.generator.generate();
+    // .forEach((entity) => {
+    //   this.data[entity.name] = {};
+    //   this.cachedVariationsByTweakByEntity.set(entity.name, new Map());
+    // });
+  }
+
+  set(data: Record<string, any>) {
+    this.data = { ...this.data, ...data };
+  }
+
+  populate(entity: DataBuilder) {
+    this.connector.connect(entity);
+  }
 
   setVariation(newVariation: number) {
     this.variation = newVariation;
   }
 
-  toOutput() {}
+  toInput(extraConfig?: ISchemaTweaks) {}
 
-  toInput() {}
+  toOutput(extraConfig?: ISchemaTweaks) {}
 
-  to(tweak: string) {}
+  to(tweak: string, extraConfig?: ISchemaTweaks) {}
 
-  build() {
+  clone() {
+    return new DataBuilder(this.schema, this.variation);
+  }
+
+  raw() {
     return this.data;
   }
 }

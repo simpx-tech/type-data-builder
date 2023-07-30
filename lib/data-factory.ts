@@ -2,6 +2,7 @@ import { DataBuilder } from "./data-builder";
 import { DataConfig } from "./data-config";
 
 export class DataFactory {
+  // TODO add separated typing for it
   create(entity: string, config: { tweak?: string; variation?: number } = {}) {
     const schema = DataConfig.getSchema(entity);
 
