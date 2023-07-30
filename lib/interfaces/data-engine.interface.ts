@@ -1,4 +1,4 @@
-import { ISchemaTweaks } from "./schema.interface";
+import { ISchemaMolds } from "./schema.interface";
 
 export interface IDataEngine {
   toNumber(input: unknown): number;
@@ -7,5 +7,5 @@ export interface IDataEngine {
   toDate(input: unknown): Date;
   toJSON(input: unknown): string;
 
-  getTweaks(): Record<string, ISchemaTweaks>;
+  getMolds(): Record<string, ISchemaMolds>;
 }

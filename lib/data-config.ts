@@ -1,20 +1,16 @@
 import { defaultTweakSymbol } from "./constants/default-tweak-symbol";
-import { MongoEngine } from "./engines/mongo-engine";
-import { IDataEngine } from "./interfaces/data-engine.interface";
-import { ISchema } from "./interfaces/schema.interface";
+import { DataSchema } from "./data-schema";
 
 export class DataConfig {
-  private static schemas = new Map<string, ISchema>();
-  private static predefinedVariations = new Map<
-    string,
+  private static schemas = new Map<Symbol, DataSchema>();
+  private static predefinedVariationsByEntity = new Map<
+    Symbol,
     Record<string, any[]>
   >();
 
-  private static engine: IDataEngine = new MongoEngine();
-
   static registerSchema(
-    entity: string,
-    schema: ISchema,
+    entity: Symbol,
+    schema: DataSchema,
     extraConfig: {
       predefinedVariations?: any[];
       tweaksVariations?: Record<string, any[]>;
@@ -23,7 +19,7 @@ export class DataConfig {
     const { predefinedVariations, tweaksVariations } = extraConfig;
 
     this.schemas.set(entity, schema);
-    this.predefinedVariations.set(entity, {
+    this.predefinedVariationsByEntity.set(entity, {
       [defaultTweakSymbol]: predefinedVariations ?? [],
       ...tweaksVariations,
     });
@@ -31,15 +27,7 @@ export class DataConfig {
     return this;
   }
 
-  static getEngine() {
-    return this.engine;
-  }
-
-  static setEngine(engine: IDataEngine) {
-    this.engine = engine;
-  }
-
-  static getSchema(entity: string) {
-    return this.schemas.get(entity) as ISchema;
+  static getSchema(entity: Symbol) {
+    return this.schemas.get(entity);
   }
 }

@@ -10,9 +10,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/lodash.omit": "^4.5.7",
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@faker-js/faker": "^8.0.2"
+    "@faker-js/faker": "^8.0.2",
+    "bson": "^5.4.0",
+    "lodash.omit": "^4.5.0"
   }
 }
