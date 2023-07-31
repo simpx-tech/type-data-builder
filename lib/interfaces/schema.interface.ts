@@ -1,6 +1,10 @@
 export type ISchema = Record<
   string,
-  IFieldConfig | String | Date | Number | Boolean
+  | IFieldConfig
+  | StringConstructor
+  | DateConstructor
+  | NumberConstructor
+  | BooleanConstructor
 >;
 
 export interface ISchemaMolds {

@@ -13,9 +13,12 @@ export class DataBuilder {
   private connector = new DataConnector(this);
   private transformer = new DataTransformer(this);
 
+  variation: number;
+
   private data: Record<string, any> = {};
 
-  constructor(readonly schema: DataSchema, private variation: number = 0) {
+  constructor(readonly schema: DataSchema, variation: number = 0) {
+    this.variation = variation;
     this.initializeData();
     this.saveVariation();
   }
@@ -73,6 +76,4 @@ export class DataBuilder {
   private saveVariation() {
     DataCache.saveVariation(this.schema, this.variation, this.data);
   }
-
-  private transform() {}
 }
