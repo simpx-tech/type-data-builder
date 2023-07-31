@@ -3,7 +3,7 @@ import { DataConfig } from "./data-config";
 import { IDataFactoryConfig } from "./interfaces/data-factory-config.interface";
 
 export class DataFactory {
-  create(entity: Symbol, config: IDataFactoryConfig = {}) {
+  static create(entity: Symbol, config: IDataFactoryConfig = {}) {
     const schema = DataConfig.getSchema(entity);
 
     if (!schema) {

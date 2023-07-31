@@ -1,5 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { DataBuilder } from "./data-builder";
+import { isDict } from "./utils/is-dict";
+import { IFieldConfig, ISchema } from "./interfaces/schema.interface";
+import { DataSchema } from "./data-schema";
+import { DataFactory } from "./data-factory";
 
 export class DataGenerator {
   constructor(private builder: DataBuilder) {}
@@ -7,16 +11,47 @@ export class DataGenerator {
   generate() {
     const schema = this.builder.schema.config;
 
-    Object.entries(schema).reduce(([field, value]) => {
-      if (typeof value === "object" && value.constructor == "Object") {
-        // get type from value.type, but before, check value.value
-        // Also check if is array
-        // Also check if the type if another object/schema
-        // Also check if is a reference to another entity (gen id in this case, get the id from variation, if not exists, create it)
+    const generated = this.generateData(schema);
+
+    this.builder.setFull(generated);
+  }
+
+  private generateData(schema: ISchema, variation: number = 0) {
+    const generated = Object.entries(schema).reduce((acc, [field, value]) => {
+      let fieldValue;
+      if (isDict(value)) {
+        const config = value as IFieldConfig;
+
+        if (config.ref) {
+          const refObj = DataFactory.create(config.ref, { variation });
+          const refId = refObj.raw()._id;
+          fieldValue = refId;
+        }
+
+        if (config.type instanceof DataSchema) {
+          const data = this.generateData(config.type.config);
+          fieldValue = data;
+        }
+
+        if (Array.isArray(config.type)) {
+          const data = this.generateData({ [field]: config.type[0] });
+          fieldValue = [data[field]];
+        }
+
+        const userGeneratedValue =
+          typeof config.value === "function" ? config.value() : config.value;
+
+        fieldValue = userGeneratedValue || this.genByType(config.type);
       } else {
-        this.genByType(typeof value.type);
+        this.genByType(typeof value);
       }
-    });
+
+      acc[field] = fieldValue;
+
+      return acc;
+    }, {} as Record<string, any>);
+
+    return generated;
   }
 
   private genByType(type: string) {
