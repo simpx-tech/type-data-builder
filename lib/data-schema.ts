@@ -2,22 +2,14 @@ import { ISchema } from "./interfaces/schema.interface";
 
 export class DataSchema {
   schemaConfig: ISchema;
-
-  private readonly __internalId = Symbol();
+  __internalId: Symbol;
 
   constructor(schemaConfig: ISchema) {
     this.schemaConfig = schemaConfig;
-  }
-
-  getIdentifier() {
-    return this.__internalId;
+    this.__internalId = Symbol();
   }
 
   get config() {
     return this.schemaConfig;
-  }
-
-  [Symbol.toStringTag]() {
-    return this.__internalId.toString();
   }
 }

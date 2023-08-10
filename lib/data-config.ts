@@ -2,14 +2,13 @@ import { defaultTweakSymbol } from "./constants/default-tweak-symbol";
 import { DataSchema } from "./data-schema";
 
 export class DataConfig {
-  private static schemas = new Map<Symbol, DataSchema>();
-  private static predefinedVariationsByEntity = new Map<
-    Symbol,
-    Record<string, any[]>
+  private static schemas = new Set<DataSchema>();
+  private static predefinedVariationsBySchema = new Map<
+    DataSchema,
+    Record<string, any>
   >();
 
   static registerSchema(
-    entity: Symbol,
     schema: DataSchema,
     extraConfig: {
       predefinedVariations?: any[];
@@ -18,16 +17,13 @@ export class DataConfig {
   ) {
     const { predefinedVariations, tweaksVariations } = extraConfig;
 
-    this.schemas.set(entity, schema);
-    this.predefinedVariationsByEntity.set(entity, {
+    this.schemas.add(schema);
+    // DEV add predefined variations to DataCache instead
+    this.predefinedVariationsBySchema.set(schema, {
       [defaultTweakSymbol]: predefinedVariations ?? [],
       ...tweaksVariations,
     });
 
     return this;
-  }
-
-  static getSchema(entity: Symbol) {
-    return this.schemas.get(entity);
   }
 }

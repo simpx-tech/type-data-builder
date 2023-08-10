@@ -1,3 +1,5 @@
+import { DataSchema } from "../data-schema";
+
 export type ISchema = Record<
   string,
   | IFieldConfig
@@ -21,5 +23,5 @@ export interface IFieldConfig {
   value?: any | (() => any);
   array?: boolean;
   // TODO show all possibilities in Typescript
-  ref?: Symbol;
+  ref?: DataSchema;
 }

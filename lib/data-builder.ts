@@ -34,8 +34,8 @@ export class DataBuilder {
   }
 
   // TODO Consider a schema which has two fields with the same entity (allow specify field instead of entity)
-  connect(entity: DataBuilder) {
-    this.connector.connect(entity);
+  connect(entity: DataSchema, variation?: number) {
+    this.connector.connect(entity, variation);
   }
 
   var(newVariation: number) {

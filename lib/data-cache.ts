@@ -1,26 +1,24 @@
 import { DataSchema } from "./data-schema";
 
 export class DataCache {
-  private static cachedVariationsByEntity: Map<Symbol, Record<string, any>> =
-    new Map();
+  private static cachedVariationsBySchema: Map<
+    DataSchema,
+    Record<string, any>
+  > = new Map();
 
   static saveVariation(
-    entity: DataSchema,
+    schema: DataSchema,
     variationIndex: number,
     variation: any
   ) {
-    const entityId = entity.getIdentifier();
-
-    this.cachedVariationsByEntity.set(entityId, {
-      ...this.cachedVariationsByEntity.get(entityId),
+    this.cachedVariationsBySchema.set(schema, {
+      ...this.cachedVariationsBySchema.get(schema),
       [variationIndex]: variation,
     });
   }
 
-  static getVariation(entity: DataSchema, variationIndex: number) {
-    const entityId = entity.getIdentifier();
-
-    const entityVariations = this.cachedVariationsByEntity.get(entityId) ?? {};
+  static getVariation(schema: DataSchema, variationIndex: number) {
+    const entityVariations = this.cachedVariationsBySchema.get(schema) ?? {};
 
     return entityVariations[variationIndex];
   }
