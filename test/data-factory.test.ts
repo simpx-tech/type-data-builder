@@ -1,5 +1,4 @@
 import { DataBuilder } from "../lib/data-builder";
-import { DataConfig } from "../lib/data-config";
 import { DataFactory } from "../lib/data-factory";
 import { DataSchema } from "../lib/data-schema";
 
@@ -8,20 +7,10 @@ describe("DataFactory", () => {
     jest.clearAllMocks();
   });
 
-  it("should fail if the entity was not registered", () => {
-    const entity = Symbol("entity");
-
-    expect(() => DataFactory.create(entity)).toThrowError();
-  });
-
   it("should create a new entity", () => {
-    jest
-      .spyOn(DataConfig, "getSchema")
-      .mockImplementation(() => new DataSchema({ test: Boolean }) as any);
+    const schema = new DataSchema({ test: Boolean });
 
-    const entity = Symbol("entity");
-
-    const builder = DataFactory.create(entity);
+    const builder = DataFactory.create(schema);
 
     expect(builder).toBeInstanceOf(DataBuilder);
     expect(builder.schema.config).toStrictEqual({ test: Boolean });
@@ -29,13 +18,9 @@ describe("DataFactory", () => {
   });
 
   it("should pass the correct variation", () => {
-    jest
-      .spyOn(DataConfig, "getSchema")
-      .mockImplementation(() => new DataSchema({ test: Boolean }) as any);
+    const schema = new DataSchema({ test: Boolean });
 
-    const entity = Symbol("entity");
-
-    const builder = DataFactory.create(entity, { variation: 2 });
+    const builder = DataFactory.create(schema, { variation: 2 });
 
     expect(builder).toBeInstanceOf(DataBuilder);
     expect(builder.schema.config).toStrictEqual({ test: Boolean });

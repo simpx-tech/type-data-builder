@@ -61,4 +61,7 @@ describe("Data Cache", () => {
 
     expect(result).toBe(variation);
   });
+
+  // DEV
+  it.todo("should register many variations at time");
 });

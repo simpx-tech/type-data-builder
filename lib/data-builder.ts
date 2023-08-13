@@ -13,29 +13,27 @@ export class DataBuilder {
   private connector = new DataConnector(this);
   private transformer = new DataTransformer(this);
 
-  variation: number;
+  variation: number = 0;
 
   private data: Record<string, any> = {};
 
   constructor(readonly schema: DataSchema, variation: number = 0) {
-    this.variation = variation;
-    this.initializeData();
-    this.saveVariation();
+    this.setVariation(variation);
   }
 
   set(data: Record<string, any>) {
     this.data = { ...this.data, ...data };
-    this.saveVariation();
+    this.saveOnCache();
   }
 
-  setFull(data: Record<string, any>) {
+  fullSet(data: Record<string, any>) {
     this.data = data;
-    this.saveVariation();
+    this.saveOnCache();
   }
 
   // TODO Consider a schema which has two fields with the same entity (allow specify field instead of entity)
   connect(entity: DataSchema, variation?: number) {
-    this.connector.connect(entity, variation);
+    this.connector.connectWithVariation(entity, variation);
   }
 
   var(newVariation: number) {
@@ -45,13 +43,12 @@ export class DataBuilder {
   setVariation(newVariation: number) {
     this.variation = newVariation;
 
-    const newVariationData = DataCache.getVariation(this.schema, newVariation);
-    if (newVariationData) {
-      this.data = newVariationData;
-      this.saveVariation();
+    const variationInCache = DataCache.getVariation(this.schema, newVariation);
+    if (variationInCache) {
+      this.data = variationInCache;
     } else {
       this.initializeData();
-      this.saveVariation();
+      this.saveOnCache();
     }
   }
 
@@ -73,7 +70,7 @@ export class DataBuilder {
     return this.generator.generate();
   }
 
-  private saveVariation() {
+  private saveOnCache() {
     DataCache.saveVariation(this.schema, this.variation, this.data);
   }
 }

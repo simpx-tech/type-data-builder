@@ -4,6 +4,7 @@ import { isDict } from "./utils/is-dict";
 import { IFieldConfig, ISchema } from "./interfaces/schema.interface";
 import { DataSchema } from "./data-schema";
 import { DataFactory } from "./data-factory";
+import { ObjectId } from "bson";
 
 export class DataGenerator {
   constructor(private builder: DataBuilder) {}
@@ -13,37 +14,32 @@ export class DataGenerator {
 
     const generated = this.generateData(schema);
 
-    this.builder.setFull(generated);
+    this.builder.fullSet(generated);
   }
 
   private generateData(schema: ISchema, variation: number = 0) {
     const generated = Object.entries(schema).reduce((acc, [field, value]) => {
       let fieldValue;
+
       if (isDict(value)) {
         const config = value as IFieldConfig;
 
-        if (config.ref) {
+        if (config.value) {
+          fieldValue =
+            typeof config.value === "function" ? config.value() : config.value;
+        } else if (config.ref) {
           const refObj = DataFactory.create(config.ref, { variation });
-          const refId = refObj.raw()._id;
-          fieldValue = refId;
-        }
+          const idField = DataSchema.getIdField(config.ref);
 
-        if (config.type instanceof DataSchema) {
+          fieldValue = refObj.raw()[idField];
+        } else if (config.type instanceof DataSchema) {
           const data = this.generateData(config.type.config);
           fieldValue = data;
+        } else {
+          fieldValue = this.genByType(config.type);
         }
-
-        if (Array.isArray(config.type)) {
-          const data = this.generateData({ [field]: config.type[0] });
-          fieldValue = [data[field]];
-        }
-
-        const userGeneratedValue =
-          typeof config.value === "function" ? config.value() : config.value;
-
-        fieldValue = userGeneratedValue || this.genByType(config.type);
       } else {
-        this.genByType(typeof value);
+        fieldValue = this.genByType(value);
       }
 
       acc[field] = fieldValue;
@@ -54,17 +50,30 @@ export class DataGenerator {
     return generated;
   }
 
-  private genByType(type: string) {
+  private genByType(type: any) {
     switch (type) {
-      case "string":
+      case String:
         return this.generateString();
-      case "number":
+      case Number:
         return this.generateNumber();
-      case "boolean":
+      case Boolean:
         return this.generateBoolean();
-      case "date":
+      case Date:
         return this.generateDate();
+      case ObjectId:
+        return this.generateObjectId();
+      default:
+        if (Array.isArray(type)) {
+          console.log("array");
+          return this.generateArray(type);
+        }
     }
+  }
+
+  private generateArray(type: any): any {
+    const tempObj = this.generateData({ data: type[0] });
+
+    return [tempObj.data];
   }
 
   private generateString() {
@@ -81,5 +90,9 @@ export class DataGenerator {
 
   private generateDate() {
     return faker.date.recent();
+  }
+
+  private generateObjectId() {
+    return new ObjectId();
   }
 }

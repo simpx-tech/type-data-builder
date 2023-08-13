@@ -1,3 +1,4 @@
+import { ObjectId } from "bson";
 import { DataBuilder } from "./data-builder";
 import { DataCache } from "./data-cache";
 import { DataFactory } from "./data-factory";
@@ -23,28 +24,97 @@ export class DataConnector {
     }
   }
 
-  connect(entity: DataSchema, variation = 0) {
+  softConnect(entity: DataSchema, idOrDataBuilder: string | DataBuilder) {
+    let finalId: string;
+    if (typeof idOrDataBuilder !== "string") {
+      const idField = DataSchema.getIdField(entity);
+
+      if (!idField) {
+        throw new Error(
+          "No id field was set. Set a field with id: true on the schema to use this"
+        );
+      }
+
+      finalId = idOrDataBuilder.raw()[idField];
+    } else {
+      finalId = idOrDataBuilder;
+    }
+
+    this.forEachConfigField((field, fieldConfig, done) => {
+      if (fieldConfig.ref === entity) {
+        this.builder.set({ [field]: new ObjectId(finalId) });
+        done();
+      }
+    });
+  }
+
+  connect(entity: DataSchema) {
+    this.forEachConfigField((field, fieldConfig, done) => {
+      if (fieldConfig.ref === entity) {
+        const id = this.builder.raw()[field];
+        let data = DataCache.getById(entity, id);
+
+        if (!data) {
+          const emptyVariation = DataCache.lookForEmptyVariation(entity);
+          data = DataFactory.create(entity, {
+            variation: emptyVariation,
+          }).raw();
+        }
+
+        this.builder.set({ [field]: data });
+        done();
+      }
+    });
+  }
+
+  connectWithVariation(entity: DataSchema, variation = 0) {
+    const wasDone = this.forEachConfigField((field, fieldConfig, done) => {
+      if (fieldConfig.ref === entity) {
+        let data = DataCache.getVariation(entity, variation);
+
+        if (!data) {
+          data = DataFactory.create(entity, { variation }).raw();
+        }
+
+        this.builder.set({ [field]: data });
+
+        done();
+      }
+    });
+
+    if (!wasDone) {
+      throw new Error(
+        `This schema has no relation to the builder schema (the builder schema doesn't has any ${entity.constructor.name} schema)`
+      );
+    }
+  }
+
+  private forEachField(
+    callback: (field: string, fieldType: any, done: Function) => void
+  ) {
+    let hasDone = false;
     const builderFields = Object.entries(this.builder.schema.config);
 
     for (const [field, fieldType] of builderFields) {
-      if (isDict(fieldType)) {
-        const fieldConfig = fieldType as IFieldConfig;
+      const done = () => {
+        hasDone = true;
+        return;
+      };
 
-        if (fieldConfig.ref === entity) {
-          let data = DataCache.getVariation(entity, variation);
-
-          if (!data) {
-            data = DataFactory.create(entity, { variation }).raw();
-          }
-
-          this.builder.set({ [field]: data });
-          return;
-        }
-      }
+      callback(field, fieldType, done);
     }
 
-    throw new Error(
-      `This schema has no relation to the builder schema (the builder schema doesn't has any ${entity.constructor.name} schema)`
-    );
+    return hasDone;
+  }
+
+  private forEachConfigField(
+    callback: (field: string, fieldConfig: IFieldConfig, done: Function) => void
+  ) {
+    return this.forEachField((field, fieldType, done) => {
+      if (isDict(fieldType)) {
+        const fieldConfig = fieldType as IFieldConfig;
+        callback(field, fieldConfig, done);
+      }
+    });
   }
 }

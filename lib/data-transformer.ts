@@ -13,7 +13,7 @@ export class DataTransformer {
       return this.transformField(config, field, value);
     });
 
-    this.builder.setFull(convertedFields);
+    this.builder.fullSet(convertedFields);
   }
 
   transformField(config: ITransformConfig, field: string, value: any) {
@@ -50,6 +50,6 @@ export class DataTransformer {
   }
 
   excludeFields(fields: string[]) {
-    this.builder.setFull(omit(this.builder.raw(), fields));
+    this.builder.fullSet(omit(this.builder.raw(), fields));
   }
 }

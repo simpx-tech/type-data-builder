@@ -7,6 +7,11 @@ export type ISchema = Record<
   | DateConstructor
   | NumberConstructor
   | BooleanConstructor
+  | StringConstructor[]
+  | DateConstructor[]
+  | NumberConstructor[]
+  | BooleanConstructor[]
+  | IFieldConfig[]
 >;
 
 export interface ISchemaMolds {
