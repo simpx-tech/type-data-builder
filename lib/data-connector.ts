@@ -9,40 +9,19 @@ import { isDict } from "./utils/is-dict";
 export class DataConnector {
   constructor(private builder: DataBuilder) {}
 
-  setConnectionVariation(entity: DataSchema, variation: number) {
-    const currentFields = Object.entries(this.builder.schema.config);
-
-    for (const [field, fieldType] of currentFields) {
-      if (isDict(fieldType)) {
-        const fieldConfig = fieldType as IFieldConfig;
-
-        if (fieldConfig.ref === entity) {
-          const data = DataFactory.create(entity, { variation }).raw();
-          this.builder.set({ [field]: data });
-        }
-      }
-    }
-  }
-
-  softConnect(entity: DataSchema, idOrDataBuilder: string | DataBuilder) {
-    let finalId: string;
-    if (typeof idOrDataBuilder !== "string") {
+  softConnect(entity: DataSchema, idOrDataBuilder: ObjectId | DataBuilder) {
+    let finalId: ObjectId;
+    if (idOrDataBuilder instanceof ObjectId) {
+      finalId = idOrDataBuilder;
+    } else {
       const idField = DataSchema.getIdField(entity);
 
-      if (!idField) {
-        throw new Error(
-          "No id field was set. Set a field with id: true on the schema to use this"
-        );
-      }
-
       finalId = idOrDataBuilder.raw()[idField];
-    } else {
-      finalId = idOrDataBuilder;
     }
 
     this.forEachConfigField((field, fieldConfig, done) => {
       if (fieldConfig.ref === entity) {
-        this.builder.set({ [field]: new ObjectId(finalId) });
+        this.builder.set({ [field]: finalId });
         done();
       }
     });
@@ -52,7 +31,7 @@ export class DataConnector {
     this.forEachConfigField((field, fieldConfig, done) => {
       if (fieldConfig.ref === entity) {
         const id = this.builder.raw()[field];
-        let data = DataCache.getById(entity, id);
+        let data = DataCache.getById(entity, id.toString());
 
         if (!data) {
           const emptyVariation = DataCache.lookForEmptyVariation(entity);

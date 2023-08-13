@@ -7,6 +7,7 @@ import { DataConnector } from "./data-connector";
 import { DataGenerator } from "./data-generator";
 import { DataSchema } from "./data-schema";
 import { DataTransformer } from "./data-transformer";
+import { ITransformConfig } from "./interfaces/transform-config.interface";
 
 export class DataBuilder {
   private generator = new DataGenerator(this);
@@ -60,6 +61,10 @@ export class DataBuilder {
   toOutput() {
     const outputConfig = outputTransformerConfig;
     return this.transformer.transform(outputConfig);
+  }
+
+  to(transformConfig: ITransformConfig) {
+    return this.transformer.transform(transformConfig);
   }
 
   raw() {

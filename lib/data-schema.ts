@@ -3,11 +3,9 @@ import { isDict } from "./utils/is-dict";
 
 export class DataSchema {
   schemaConfig: ISchema;
-  __internalId: Symbol;
 
   constructor(schemaConfig: ISchema) {
     this.schemaConfig = schemaConfig;
-    this.__internalId = Symbol();
   }
 
   get config() {

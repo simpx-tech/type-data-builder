@@ -64,14 +64,19 @@ export class DataGenerator {
         return this.generateObjectId();
       default:
         if (Array.isArray(type)) {
-          console.log("array");
           return this.generateArray(type);
+        }
+
+        if (type instanceof DataSchema) {
+          return this.generateData(type.config);
         }
     }
   }
 
   private generateArray(type: any): any {
-    const tempObj = this.generateData({ data: type[0] });
+    const tempObj = this.generateData({
+      data: type[0],
+    });
 
     return [tempObj.data];
   }

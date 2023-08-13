@@ -32,6 +32,19 @@ describe("Data Generator", () => {
     });
   });
 
+  it("should generate a referenced entity if it not exists yet", () => {
+    const referencedSchema = new DataSchema({
+      _id: { type: ObjectId, id: true },
+    });
+    const schema = new DataSchema({
+      referenced: { type: ObjectId, ref: referencedSchema },
+    });
+
+    new DataBuilder(schema);
+
+    expect(DataCache.getVariation(referencedSchema, 0)).toBeTruthy();
+  });
+
   it("should generate a ObjectId for the ref field, and it should be equal to the first variation", () => {
     const referencedSchema = new DataSchema({
       _id: { id: true, type: ObjectId },
@@ -167,4 +180,6 @@ describe("Data Generator", () => {
       test: 12345,
     });
   });
+
+  // TODO test multi level nested objects
 });

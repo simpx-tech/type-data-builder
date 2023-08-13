@@ -19,7 +19,7 @@ describe("Data Cache", () => {
 
     expect(
       (DataCache as any)?.cachedVariationsBySchema?.get?.(schema)
-    ).toStrictEqual({ [variationIndex]: variation });
+    ).toStrictEqual([variation]);
   });
 
   it("should return the registered schema", () => {
@@ -62,6 +62,62 @@ describe("Data Cache", () => {
     expect(result).toBe(variation);
   });
 
-  // DEV
-  it.todo("should register many variations at time");
+  it("should register many variations at time", () => {
+    const schema = new DataSchema({ test: Boolean });
+    const variations = [{ test: true }, { test: false }];
+
+    DataCache.registerVariations(schema, variations);
+
+    expect(
+      (DataCache as any)?.cachedVariationsBySchema?.get?.(schema)
+    ).toStrictEqual(variations);
+  });
+
+  it("should get the correct variation by id", () => {
+    const schema = new DataSchema({ test: { type: Number, id: true } });
+
+    DataCache.registerVariations(schema, [
+      { test: 1 },
+      { test: 2 },
+      { test: 3 },
+    ]);
+
+    const data = DataCache.getById(schema, 2);
+
+    expect(data).toStrictEqual({ test: 2 });
+  });
+
+  it("should look for the next variation index", () => {
+    const schema = new DataSchema({ test: Number });
+
+    DataCache.registerVariations(schema, [
+      { test: 1 },
+      { test: 2 },
+      { test: 3 },
+    ]);
+
+    const result = DataCache.lookForEmptyVariation(schema);
+
+    expect(result).toBe(3);
+  });
+
+  it("should look for the next variation index (when there is space in between)", () => {
+    const schema = new DataSchema({ test: Number });
+
+    DataCache.saveVariation(schema, 0, { test: 1 });
+    DataCache.saveVariation(schema, 3, { test: 2 });
+    DataCache.saveVariation(schema, 10, { test: 3 });
+
+    const result = DataCache.lookForEmptyVariation(schema);
+
+    expect(result).toBe(11);
+  });
+
+  it("should look for the next variation index (should return zero if there isn't any entity cached)", () => {
+    const schema = new DataSchema({ test: Number });
+
+    const result = DataCache.lookForEmptyVariation(schema);
+
+    expect(result).toBe(0);
+  });
 });

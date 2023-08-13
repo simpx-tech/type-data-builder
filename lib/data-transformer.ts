@@ -1,6 +1,7 @@
 import omit from "lodash.omit";
 import { DataBuilder } from "./data-builder";
 import { ITransformConfig } from "./interfaces/transform-config.interface";
+import { isDict } from "./utils/is-dict";
 
 export class DataTransformer {
   constructor(private readonly builder: DataBuilder) {}
@@ -9,11 +10,16 @@ export class DataTransformer {
     this.excludeFields(config.excludeFields);
 
     const fields = Object.entries(this.builder.raw());
-    const convertedFields = fields.map(([field, value]) => {
-      return this.transformField(config, field, value);
-    });
+    const transformedFields = fields.reduce<Record<string, any>>(
+      (acc, [field, value]) => {
+        const transformedField = this.transformField(config, field, value);
+        acc[field] = transformedField;
+        return acc;
+      },
+      {}
+    );
 
-    this.builder.fullSet(convertedFields);
+    return transformedFields;
   }
 
   transformField(config: ITransformConfig, field: string, value: any) {
@@ -26,11 +32,12 @@ export class DataTransformer {
     if (typeof value === "object") {
       if (Array.isArray(value)) {
         return this.transformArray(config, field, value);
-        // Have sure that the object is a dictionary
-      } else if (value.constructor == Object) {
+      } else if (isDict(value)) {
         return this.transformObject(config, field, value);
       }
     }
+
+    return value;
   }
 
   transformArray(config: ITransformConfig, field: string, value: any[]): any[] {
@@ -44,9 +51,13 @@ export class DataTransformer {
     field: string,
     value: Record<string, any>
   ): Record<string, any> {
-    return Object.entries(value).map(([key, value]) => {
-      return this.transformField(config, `${field}.${key}`, value);
-    });
+    return Object.entries(value).reduce<Record<string, any>>(
+      (acc, [key, value]) => {
+        acc[key] = this.transformField(config, `${field}.${key}`, value);
+        return acc;
+      },
+      {}
+    );
   }
 
   excludeFields(fields: string[]) {

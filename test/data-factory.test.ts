@@ -2,7 +2,7 @@ import { DataBuilder } from "../lib/data-builder";
 import { DataFactory } from "../lib/data-factory";
 import { DataSchema } from "../lib/data-schema";
 
-describe("DataFactory", () => {
+describe("Data Factory", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
