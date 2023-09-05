@@ -1,10 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { DataBuilder } from "./data-builder";
 import { isDict } from "./utils/is-dict";
-import { IFieldConfig, ISchema } from "./interfaces/schema.interface";
+import { IFieldConfig, ISchema } from "./interfaces";
 import { DataSchema } from "./data-schema";
 import { DataFactory } from "./data-factory";
 import { ObjectId } from "bson";
+import {SpecialType} from "./enums/special-types.enum";
 
 export class DataGenerator {
   constructor(private builder: DataBuilder) {}
@@ -18,7 +19,7 @@ export class DataGenerator {
   }
 
   private generateData(schema: ISchema, variation: number = 0) {
-    const generated = Object.entries(schema).reduce((acc, [field, value]) => {
+    return Object.entries(schema).reduce((acc, [field, value]) => {
       let fieldValue;
 
       if (isDict(value)) {
@@ -33,8 +34,7 @@ export class DataGenerator {
 
           fieldValue = refObj.raw()[idField];
         } else if (config.type instanceof DataSchema) {
-          const data = this.generateData(config.type.config);
-          fieldValue = data;
+          fieldValue = this.generateData(config.type.config);
         } else {
           fieldValue = this.genByType(config.type);
         }
@@ -46,8 +46,6 @@ export class DataGenerator {
 
       return acc;
     }, {} as Record<string, any>);
-
-    return generated;
   }
 
   private genByType(type: any) {
@@ -60,7 +58,7 @@ export class DataGenerator {
         return this.generateBoolean();
       case Date:
         return this.generateDate();
-      case ObjectId:
+      case SpecialType.ObjectId:
         return this.generateObjectId();
       default:
         if (Array.isArray(type)) {

@@ -1,13 +1,10 @@
-import {
-  inputTransformerConfig,
-  outputTransformerConfig,
-} from "./constants/transformer-configs";
-import { DataCache } from "./data-cache";
-import { DataConnector } from "./data-connector";
-import { DataGenerator } from "./data-generator";
-import { DataSchema } from "./data-schema";
-import { DataTransformer } from "./data-transformer";
-import { ITransformConfig } from "./interfaces/transform-config.interface";
+import {inputTransformerConfig, outputTransformerConfig,} from "./constants/transformer-configs";
+import {DataCache} from "./data-cache";
+import {DataConnector} from "./data-connector";
+import {DataGenerator} from "./data-generator";
+import {DataSchema} from "./data-schema";
+import {DataTransformer} from "./data-transformer";
+import {ITransformConfig} from "./interfaces";
 
 export class DataBuilder {
   private generator = new DataGenerator(this);
@@ -54,13 +51,11 @@ export class DataBuilder {
   }
 
   toInput() {
-    const inputConfig = inputTransformerConfig;
-    return this.transformer.transform(inputConfig);
+    return this.transformer.transform(inputTransformerConfig);
   }
 
   toOutput() {
-    const outputConfig = outputTransformerConfig;
-    return this.transformer.transform(outputConfig);
+    return this.transformer.transform(outputTransformerConfig);
   }
 
   to(transformConfig: ITransformConfig) {

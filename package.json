@@ -1,19 +1,29 @@
 {
-  "name": "utils-data-builder",
-  "version": "1.0.0",
+  "name": "@viniciusaportela/type-data-builder",
+  "version": "1.0.3",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "typings": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "build": "npx tsc"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "typescript",
+    "tests",
+    "data-builder"
+  ],
+  "author": "viniciusaportela",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^29.5.3",
     "@types/lodash.omit": "^4.5.7",
     "jest": "^29.6.2",
+    "prettier": "^3.0.3",
     "ts-jest": "^29.1.1",
     "typescript": "^5.1.6"
   },

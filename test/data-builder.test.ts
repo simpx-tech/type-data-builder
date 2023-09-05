@@ -1,11 +1,11 @@
-import { ObjectId } from "bson";
 import { DataBuilder } from "../lib/data-builder";
 import { DataCache } from "../lib/data-cache";
-import { DataSchema } from "../lib/data-schema";
+import { DataSchema } from "../lib";
 import {
   inputTransformerConfig,
   outputTransformerConfig,
 } from "../lib/constants/transformer-configs";
+import { SpecialType } from "../lib/enums/special-types.enum";
 
 describe("Data Builder", () => {
   beforeEach(() => {
@@ -64,12 +64,14 @@ describe("Data Builder", () => {
   });
 
   it("should call the DataConnector to connect", () => {
-    const schema2 = new DataSchema({ _id: { type: ObjectId, id: true } });
+    const schema2 = new DataSchema({
+      _id: { type: SpecialType.ObjectId, id: true },
+    });
     new DataBuilder(schema2);
 
     const schema = new DataSchema({
       test: Number,
-      test2: { type: ObjectId, ref: schema2 },
+      test2: { type: SpecialType.ObjectId, ref: schema2 },
     });
     const builder = new DataBuilder(schema);
 
@@ -94,7 +96,7 @@ describe("Data Builder", () => {
     expect(builder.raw()).toStrictEqual({ test: expect.any(Number) });
 
     expect(DataCache["cachedVariationsBySchema"].get(schema)![1]).toStrictEqual(
-      builder.raw()
+      builder.raw(),
     );
   });
 
@@ -109,7 +111,7 @@ describe("Data Builder", () => {
     expect(builder.raw()).toStrictEqual({ test: expect.any(Number) });
 
     expect(DataCache["cachedVariationsBySchema"].get(schema)![1]).toStrictEqual(
-      builder2.raw()
+      builder2.raw(),
     );
     expect(builder.raw()).toStrictEqual(builder2.raw());
   });

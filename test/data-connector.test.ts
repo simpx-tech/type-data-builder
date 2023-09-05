@@ -1,9 +1,10 @@
 import { ObjectId } from "bson";
 import { DataBuilder } from "../lib/data-builder";
 import { DataConnector } from "../lib/data-connector";
-import { DataSchema } from "../lib/data-schema";
-import { DataFactory } from "../lib/data-factory";
+import { DataSchema } from "../lib";
+import { DataFactory } from "../lib";
 import { DataCache } from "../lib/data-cache";
+import {SpecialType} from "../lib/enums/special-types.enum";
 
 describe("Data Connector", () => {
   beforeEach(() => {
@@ -25,13 +26,13 @@ describe("Data Connector", () => {
 
   it("should connect a builder to a schema (and populate it)", () => {
     const schema2 = new DataSchema({
-      _id: { id: true, type: ObjectId },
+      _id: { id: true, type: SpecialType.ObjectId },
       test3: String,
     });
 
     const schema = new DataSchema({
       test: Boolean,
-      test2: { type: ObjectId, ref: schema2 },
+      test2: { type: SpecialType.ObjectId, ref: schema2 },
     });
 
     const builder = new DataBuilder(schema);
@@ -50,13 +51,13 @@ describe("Data Connector", () => {
 
   it("should connect to a given entity", () => {
     const referencedSchema = new DataSchema({
-      _id: { id: true, type: ObjectId },
+      _id: { id: true, type: SpecialType.ObjectId },
       test3: String,
     });
 
     const schema = new DataSchema({
       test: Boolean,
-      referenced: { type: ObjectId, ref: referencedSchema },
+      referenced: { type: SpecialType.ObjectId, ref: referencedSchema },
     });
 
     const builder = new DataBuilder(schema);
@@ -73,13 +74,13 @@ describe("Data Connector", () => {
 
   it("should create a new entity if it the referenced entity doesn't exists (on connect)", () => {
     const referencedSchema = new DataSchema({
-      _id: { id: true, type: ObjectId },
+      _id: { id: true, type: SpecialType.ObjectId },
       test3: String,
     });
 
     const schema = new DataSchema({
       test: Boolean,
-      referenced: { type: ObjectId, ref: referencedSchema },
+      referenced: { type: SpecialType.ObjectId, ref: referencedSchema },
     });
 
     const builder = new DataBuilder(schema);
@@ -97,9 +98,9 @@ describe("Data Connector", () => {
   });
 
   it("should set the id of the connected entity, by passing an id", () => {
-    const schema = new DataSchema({ _id: { type: ObjectId, id: true } });
+    const schema = new DataSchema({ _id: { type: SpecialType.ObjectId, id: true } });
     const schema2 = new DataSchema({
-      referenced: { type: ObjectId, ref: schema },
+      referenced: { type: SpecialType.ObjectId, ref: schema },
     });
 
     const builder = new DataBuilder(schema2);
@@ -115,10 +116,10 @@ describe("Data Connector", () => {
 
   it("should set the id of the connected entity, by passing an data builder", () => {
     const referencedSchema = new DataSchema({
-      _id: { type: ObjectId, id: true },
+      _id: { type: SpecialType.ObjectId, id: true },
     });
     const schema = new DataSchema({
-      referenced: { type: ObjectId, ref: referencedSchema },
+      referenced: { type: SpecialType.ObjectId, ref: referencedSchema },
     });
 
     const referencedBuilder = new DataBuilder(referencedSchema);
@@ -134,10 +135,10 @@ describe("Data Connector", () => {
 
   it("should create a new variation if it not exists (connectWithVariation)", () => {
     const referencedSchema = new DataSchema({
-      _id: { type: ObjectId, id: true },
+      _id: { type: SpecialType.ObjectId, id: true },
     });
     const schema = new DataSchema({
-      referenced: { type: ObjectId, ref: referencedSchema },
+      referenced: { type: SpecialType.ObjectId, ref: referencedSchema },
     });
 
     new DataBuilder(referencedSchema);

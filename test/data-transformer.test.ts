@@ -1,11 +1,11 @@
-import { ObjectId } from "bson";
 import {
   inputTransformerConfig,
   outputTransformerConfig,
 } from "../lib/constants/transformer-configs";
 import { DataBuilder } from "../lib/data-builder";
-import { DataSchema } from "../lib/data-schema";
+import { DataSchema } from "../lib";
 import { DataTransformer } from "../lib/data-transformer";
+import {SpecialType} from "../lib/enums/special-types.enum";
 
 describe("Data Transformer", () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe("Data Transformer", () => {
         __v: Number,
         _id: {
           id: true,
-          type: ObjectId,
+          type: SpecialType.ObjectId,
         },
         createdAt: Date,
         updatedAt: Date,
@@ -42,7 +42,7 @@ describe("Data Transformer", () => {
         __v: Number,
         _id: {
           id: true,
-          type: ObjectId,
+          type: SpecialType.ObjectId,
         },
         createdAt: Date,
         updatedAt: Date,
@@ -135,6 +135,4 @@ describe("Data Transformer", () => {
       ],
     });
   });
-
-  // TODO test multi level nested objects
 });

@@ -3,7 +3,7 @@ import { DataBuilder } from "./data-builder";
 import { DataCache } from "./data-cache";
 import { DataFactory } from "./data-factory";
 import { DataSchema } from "./data-schema";
-import { IFieldConfig } from "./interfaces/schema.interface";
+import { IFieldConfig } from "./interfaces";
 import { isDict } from "./utils/is-dict";
 
 export class DataConnector {

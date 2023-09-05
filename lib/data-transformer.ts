@@ -1,6 +1,6 @@
 import omit from "lodash.omit";
 import { DataBuilder } from "./data-builder";
-import { ITransformConfig } from "./interfaces/transform-config.interface";
+import { ITransformConfig } from "./interfaces";
 import { isDict } from "./utils/is-dict";
 
 export class DataTransformer {
@@ -10,16 +10,10 @@ export class DataTransformer {
     this.excludeFields(config.excludeFields);
 
     const fields = Object.entries(this.builder.raw());
-    const transformedFields = fields.reduce<Record<string, any>>(
-      (acc, [field, value]) => {
-        const transformedField = this.transformField(config, field, value);
-        acc[field] = transformedField;
-        return acc;
-      },
-      {}
-    );
-
-    return transformedFields;
+    return fields.reduce<Record<string, any>>((acc, [field, value]) => {
+      acc[field] = this.transformField(config, field, value);
+      return acc;
+    }, {});
   }
 
   transformField(config: ITransformConfig, field: string, value: any) {
@@ -49,14 +43,14 @@ export class DataTransformer {
   transformObject(
     config: ITransformConfig,
     field: string,
-    value: Record<string, any>
+    value: Record<string, any>,
   ): Record<string, any> {
     return Object.entries(value).reduce<Record<string, any>>(
       (acc, [key, value]) => {
         acc[key] = this.transformField(config, `${field}.${key}`, value);
         return acc;
       },
-      {}
+      {},
     );
   }
 

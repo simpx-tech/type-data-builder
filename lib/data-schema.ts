@@ -1,4 +1,4 @@
-import { IFieldConfig, ISchema } from "./interfaces/schema.interface";
+import { IFieldConfig, ISchema } from "./interfaces";
 import { isDict } from "./utils/is-dict";
 
 export class DataSchema {

@@ -1,8 +1,9 @@
 import { ObjectId } from "bson";
 import { DataBuilder } from "../lib/data-builder";
 import { DataGenerator } from "../lib/data-generator";
-import { DataSchema } from "../lib/data-schema";
+import { DataSchema } from "../lib";
 import { DataCache } from "../lib/data-cache";
+import {SpecialType} from "../lib/enums/special-types.enum";
 
 describe("Data Generator", () => {
   beforeEach(() => {
@@ -34,10 +35,10 @@ describe("Data Generator", () => {
 
   it("should generate a referenced entity if it not exists yet", () => {
     const referencedSchema = new DataSchema({
-      _id: { type: ObjectId, id: true },
+      _id: { type: SpecialType.ObjectId, id: true },
     });
     const schema = new DataSchema({
-      referenced: { type: ObjectId, ref: referencedSchema },
+      referenced: { type: SpecialType.ObjectId, ref: referencedSchema },
     });
 
     new DataBuilder(schema);
@@ -47,7 +48,7 @@ describe("Data Generator", () => {
 
   it("should generate a ObjectId for the ref field, and it should be equal to the first variation", () => {
     const referencedSchema = new DataSchema({
-      _id: { id: true, type: ObjectId },
+      _id: { id: true, type: SpecialType.ObjectId },
       test: Boolean,
     });
     const referencedBuilder = new DataBuilder(referencedSchema);
@@ -55,7 +56,7 @@ describe("Data Generator", () => {
     const builder = new DataBuilder(
       new DataSchema({
         test: {
-          type: ObjectId,
+          type: SpecialType.ObjectId,
           ref: referencedSchema,
         },
       })
@@ -181,5 +182,49 @@ describe("Data Generator", () => {
     });
   });
 
-  // TODO test multi level nested objects
+  it("should generate nested objects", () => {
+    const nestedSchema = new DataSchema({
+      test: Number,
+    })
+
+    const rootSchema = new DataSchema({
+      rootTest: {
+        type: nestedSchema
+      }
+    })
+
+    const builder = new DataBuilder(rootSchema);
+
+    const generator = new DataGenerator(builder);
+    generator.generate();
+
+    expect(builder.raw()).toStrictEqual({
+      rootTest: {
+        test: expect.any(Number)
+      },
+    });
+  });
+
+  it("should generate array of nested objects", () => {
+    const nestedSchema = new DataSchema({
+      test: Number,
+    })
+
+    const rootSchema = new DataSchema({
+      rootTest: {
+        type: [nestedSchema]
+      }
+    })
+
+    const builder = new DataBuilder(rootSchema);
+
+    const generator = new DataGenerator(builder);
+    generator.generate();
+
+    expect(builder.raw()).toStrictEqual({
+      rootTest: [{
+        test: expect.any(Number)
+      }],
+    });
+  });
 });
