@@ -5,7 +5,7 @@ import { IFieldConfig, ISchema } from "./interfaces";
 import { DataSchema } from "./data-schema";
 import { DataFactory } from "./data-factory";
 import { ObjectId } from "bson";
-import {SpecialType} from "./enums/special-types.enum";
+import { SpecialType } from "./enums";
 
 export class DataGenerator {
   constructor(private builder: DataBuilder) {}
@@ -19,33 +19,38 @@ export class DataGenerator {
   }
 
   private generateData(schema: ISchema, variation: number = 0) {
-    return Object.entries(schema).reduce((acc, [field, value]) => {
-      let fieldValue;
+    return Object.entries(schema).reduce(
+      (acc, [field, value]) => {
+        let fieldValue;
 
-      if (isDict(value)) {
-        const config = value as IFieldConfig;
+        if (isDict(value)) {
+          const config = value as IFieldConfig;
 
-        if (config.value) {
-          fieldValue =
-            typeof config.value === "function" ? config.value() : config.value;
-        } else if (config.ref) {
-          const refObj = DataFactory.create(config.ref, { variation });
-          const idField = DataSchema.getIdField(config.ref);
+          if (config.value) {
+            fieldValue =
+              typeof config.value === "function"
+                ? config.value()
+                : config.value;
+          } else if (config.ref) {
+            const refObj = DataFactory.create(config.ref, { variation });
+            const idField = DataSchema.getIdField(config.ref);
 
-          fieldValue = refObj.raw()[idField];
-        } else if (config.type instanceof DataSchema) {
-          fieldValue = this.generateData(config.type.config);
+            fieldValue = refObj.raw()[idField];
+          } else if (config.type instanceof DataSchema) {
+            fieldValue = this.generateData(config.type.config);
+          } else {
+            fieldValue = this.genByType(config.type);
+          }
         } else {
-          fieldValue = this.genByType(config.type);
+          fieldValue = this.genByType(value);
         }
-      } else {
-        fieldValue = this.genByType(value);
-      }
 
-      acc[field] = fieldValue;
+        acc[field] = fieldValue;
 
-      return acc;
-    }, {} as Record<string, any>);
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
   }
 
   private genByType(type: any) {
