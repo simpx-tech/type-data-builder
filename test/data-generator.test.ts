@@ -3,7 +3,7 @@ import { DataBuilder } from "../lib/data-builder";
 import { DataGenerator } from "../lib/data-generator";
 import { DataSchema } from "../lib";
 import { DataCache } from "../lib/data-cache";
-import {SpecialType} from "../lib/enums/special-types.enum";
+import { SpecialType } from "../lib";
 
 describe("Data Generator", () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe("Data Generator", () => {
         test2: String,
         test3: Number,
         test4: Date,
-      })
+      }),
     );
 
     const generator = new DataGenerator(builder);
@@ -59,7 +59,7 @@ describe("Data Generator", () => {
           type: SpecialType.ObjectId,
           ref: referencedSchema,
         },
-      })
+      }),
     );
 
     const generator = new DataGenerator(builder);
@@ -84,7 +84,7 @@ describe("Data Generator", () => {
         testNested: {
           type: nestedSchema,
         },
-      })
+      }),
     );
 
     const generator = new DataGenerator(builder);
@@ -104,7 +104,7 @@ describe("Data Generator", () => {
     const builder = new DataBuilder(
       new DataSchema({
         test: [Number],
-      })
+      }),
     );
 
     const generator = new DataGenerator(builder);
@@ -128,7 +128,7 @@ describe("Data Generator", () => {
             }),
           },
         ],
-      })
+      }),
     );
 
     const generator = new DataGenerator(builder);
@@ -146,6 +146,30 @@ describe("Data Generator", () => {
     });
   });
 
+  it("should generate an array of objects ids if use array of refs", () => {
+    const referencedSchema = new DataSchema({
+      _id: { id: true, type: SpecialType.ObjectId },
+    });
+
+    const builder = new DataBuilder(
+      new DataSchema({
+        test: [
+          {
+            ref: referencedSchema,
+            type: SpecialType.ObjectId,
+          },
+        ],
+      }),
+    );
+
+    const generator = new DataGenerator(builder);
+    generator.generate();
+
+    expect(builder.raw()).toStrictEqual({
+      test: [expect.any(ObjectId)],
+    });
+  });
+
   it("should use the user provided value", () => {
     const builder = new DataBuilder(
       new DataSchema({
@@ -153,7 +177,7 @@ describe("Data Generator", () => {
           type: Number,
           value: 12345,
         },
-      })
+      }),
     );
 
     const generator = new DataGenerator(builder);
@@ -171,7 +195,7 @@ describe("Data Generator", () => {
           type: Number,
           value: () => 12345,
         },
-      })
+      }),
     );
 
     const generator = new DataGenerator(builder);
@@ -185,13 +209,13 @@ describe("Data Generator", () => {
   it("should generate nested objects", () => {
     const nestedSchema = new DataSchema({
       test: Number,
-    })
+    });
 
     const rootSchema = new DataSchema({
       rootTest: {
-        type: nestedSchema
-      }
-    })
+        type: nestedSchema,
+      },
+    });
 
     const builder = new DataBuilder(rootSchema);
 
@@ -200,7 +224,7 @@ describe("Data Generator", () => {
 
     expect(builder.raw()).toStrictEqual({
       rootTest: {
-        test: expect.any(Number)
+        test: expect.any(Number),
       },
     });
   });
@@ -208,13 +232,13 @@ describe("Data Generator", () => {
   it("should generate array of nested objects", () => {
     const nestedSchema = new DataSchema({
       test: Number,
-    })
+    });
 
     const rootSchema = new DataSchema({
       rootTest: {
-        type: [nestedSchema]
-      }
-    })
+        type: [nestedSchema],
+      },
+    });
 
     const builder = new DataBuilder(rootSchema);
 
@@ -222,9 +246,11 @@ describe("Data Generator", () => {
     generator.generate();
 
     expect(builder.raw()).toStrictEqual({
-      rootTest: [{
-        test: expect.any(Number)
-      }],
+      rootTest: [
+        {
+          test: expect.any(Number),
+        },
+      ],
     });
   });
 });

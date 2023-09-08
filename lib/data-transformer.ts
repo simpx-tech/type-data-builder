@@ -16,7 +16,7 @@ export class DataTransformer {
     }, {});
   }
 
-  transformField(config: ITransformConfig, field: string, value: any) {
+  private transformField(config: ITransformConfig, field: string, value: any) {
     for (const convertor of config.convertors) {
       if (convertor.isToConvert(value)) {
         return convertor.convert(value);
@@ -34,13 +34,17 @@ export class DataTransformer {
     return value;
   }
 
-  transformArray(config: ITransformConfig, field: string, value: any[]): any[] {
+  private transformArray(
+    config: ITransformConfig,
+    field: string,
+    value: any[],
+  ): any[] {
     return value.map((item, index) => {
       return this.transformField(config, `${field}.${index}`, item);
     });
   }
 
-  transformObject(
+  private transformObject(
     config: ITransformConfig,
     field: string,
     value: Record<string, any>,
@@ -54,7 +58,7 @@ export class DataTransformer {
     );
   }
 
-  excludeFields(fields: string[]) {
+  private excludeFields(fields: string[]) {
     this.builder.fullSet(omit(this.builder.raw(), fields));
   }
 }

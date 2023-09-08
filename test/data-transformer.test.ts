@@ -5,7 +5,7 @@ import {
 import { DataBuilder } from "../lib/data-builder";
 import { DataSchema } from "../lib";
 import { DataTransformer } from "../lib/data-transformer";
-import {SpecialType} from "../lib/enums/special-types.enum";
+import { SpecialType } from "../lib";
 
 describe("Data Transformer", () => {
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("Data Transformer", () => {
         updatedAt: Date,
         otherField: String,
         fieldToSkipTransform: Object.create(null),
-      })
+      }),
     );
     const transformer = new DataTransformer(builder);
 
@@ -47,7 +47,7 @@ describe("Data Transformer", () => {
         createdAt: Date,
         updatedAt: Date,
         otherField: String,
-      })
+      }),
     );
     const transformer = new DataTransformer(builder);
 
@@ -74,7 +74,7 @@ describe("Data Transformer", () => {
         testNested: {
           type: nestedSchema,
         },
-      })
+      }),
     );
 
     const transformer = new DataTransformer(builder);
@@ -90,11 +90,21 @@ describe("Data Transformer", () => {
     });
   });
 
-  it("should transform arrays", () => {
+  it("should transform to output with arrays", () => {
+    const referencedSchema = new DataSchema({
+      _id: { id: true, type: SpecialType.ObjectId },
+    });
+
     const builder = new DataBuilder(
       new DataSchema({
         test: [Date],
-      })
+        test2: [
+          {
+            ref: referencedSchema,
+            type: SpecialType.ObjectId,
+          },
+        ],
+      }),
     );
 
     const transformer = new DataTransformer(builder);
@@ -102,6 +112,7 @@ describe("Data Transformer", () => {
 
     expect(output).toStrictEqual({
       test: [expect.any(String)],
+      test2: [expect.any(String)],
     });
   });
 
@@ -118,7 +129,7 @@ describe("Data Transformer", () => {
         testNestedArray: {
           type: [nestedSchema],
         },
-      })
+      }),
     );
 
     const transformer = new DataTransformer(builder);
