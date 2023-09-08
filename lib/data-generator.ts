@@ -26,7 +26,7 @@ export class DataGenerator {
         if (isDict(value)) {
           const config = value as IFieldConfig;
 
-          if (config.value) {
+          if (config.value !== undefined) {
             fieldValue =
               typeof config.value === "function"
                 ? config.value()

@@ -1,4 +1,4 @@
-import { IDataConvertor } from "../interfaces/data-convertor.interface";
+import { IDataConvertor } from "../interfaces";
 
 export class DateToStringConvertor implements IDataConvertor {
   isToConvert(input: unknown): boolean {

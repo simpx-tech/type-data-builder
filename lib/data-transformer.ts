@@ -2,14 +2,17 @@ import omit from "lodash.omit";
 import { DataBuilder } from "./data-builder";
 import { ITransformConfig } from "./interfaces";
 import { isDict } from "./utils/is-dict";
+import { deepCopy } from "./utils/deep-copy";
 
 export class DataTransformer {
   constructor(private readonly builder: DataBuilder) {}
 
   transform(config: ITransformConfig) {
-    this.excludeFields(config.excludeFields);
+    const objCopy = deepCopy(this.builder.raw());
 
-    const fields = Object.entries(this.builder.raw());
+    const objWithoutFields = this.excludeFields(objCopy, config.excludeFields);
+
+    const fields = Object.entries(objWithoutFields);
     return fields.reduce<Record<string, any>>((acc, [field, value]) => {
       acc[field] = this.transformField(config, field, value);
       return acc;
@@ -25,8 +28,10 @@ export class DataTransformer {
 
     if (typeof value === "object") {
       if (Array.isArray(value)) {
+        // TODO "field" doesn't seem to be used, and so, to be relevant
         return this.transformArray(config, field, value);
       } else if (isDict(value)) {
+        // TODO "field" doesn't seem to be used, and so, to be relevant
         return this.transformObject(config, field, value);
       }
     }
@@ -58,7 +63,7 @@ export class DataTransformer {
     );
   }
 
-  private excludeFields(fields: string[]) {
-    this.builder.fullSet(omit(this.builder.raw(), fields));
+  private excludeFields(objCopy: Record<string, any>, fields: string[]) {
+    return omit(objCopy, fields);
   }
 }

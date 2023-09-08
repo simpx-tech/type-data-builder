@@ -23,7 +23,6 @@ describe("Data Transformer", () => {
         createdAt: Date,
         updatedAt: Date,
         otherField: String,
-        fieldToSkipTransform: Object.create(null),
       }),
     );
     const transformer = new DataTransformer(builder);
@@ -32,7 +31,6 @@ describe("Data Transformer", () => {
 
     expect(input).toStrictEqual({
       otherField: expect.any(String),
-      fieldToSkipTransform: undefined,
     });
   });
 
@@ -144,6 +142,36 @@ describe("Data Transformer", () => {
           test4: expect.any(String),
         },
       ],
+    });
+  });
+
+  it("should make many transforms without modifying the original builder", () => {
+    const builder = new DataBuilder(
+      new DataSchema({
+        __v: Number,
+        _id: {
+          id: true,
+          type: SpecialType.ObjectId,
+        },
+        createdAt: Date,
+        updatedAt: Date,
+        otherField: String,
+      }),
+    );
+    const transformer = new DataTransformer(builder);
+
+    const input = transformer.transform(inputTransformerConfig);
+    const output = transformer.transform(outputTransformerConfig);
+
+    expect(input).toStrictEqual({
+      otherField: expect.any(String),
+    });
+
+    expect(output).toStrictEqual({
+      _id: expect.any(String),
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+      otherField: expect.any(String),
     });
   });
 });

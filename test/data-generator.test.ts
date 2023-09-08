@@ -177,6 +177,10 @@ describe("Data Generator", () => {
           type: Number,
           value: 12345,
         },
+        test2: {
+          type: Boolean,
+          value: false,
+        },
       }),
     );
 
@@ -185,6 +189,7 @@ describe("Data Generator", () => {
 
     expect(builder.raw()).toStrictEqual({
       test: 12345,
+      test2: false,
     });
   });
 
